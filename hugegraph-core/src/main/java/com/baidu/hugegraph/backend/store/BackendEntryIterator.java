@@ -26,6 +26,7 @@ import com.baidu.hugegraph.backend.query.Query;
 import com.baidu.hugegraph.exception.LimitExceedException;
 import com.baidu.hugegraph.exception.NotSupportException;
 import com.baidu.hugegraph.iterator.Metadatable;
+import com.baidu.hugegraph.util.E;
 
 public abstract class BackendEntryIterator
                 implements Iterator<BackendEntry>, AutoCloseable, Metadatable {
@@ -37,6 +38,7 @@ public abstract class BackendEntryIterator
     private long count;
 
     public BackendEntryIterator(Query query) {
+        E.checkNotNull(query, "query");
         this.query = query;
         this.count = 0L;
         this.current = null;
@@ -149,4 +151,26 @@ public abstract class BackendEntryIterator
     protected abstract boolean fetch();
 
     protected abstract String pageState();
+
+    public static final class EmptyIterator extends BackendEntryIterator {
+
+        public EmptyIterator(Query query) {
+            super(query);
+        }
+
+        @Override
+        protected boolean fetch() {
+            return false;
+        }
+
+        @Override
+        protected String pageState() {
+            return null;
+        }
+
+        @Override
+        public void close() throws Exception {
+            return;
+        }
+    }
 }
